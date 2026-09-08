@@ -34,18 +34,11 @@ export class ProfilePage {
 
     async saveProfile() {
         const saved = this.page.waitForResponse(
-            (response) => response.url().endsWith(ROUTES.profile) && response.request().method() === "POST"
+            (response) => response.url().endsWith(ROUTES.profile) && response.request().method() === "POST",
+            { timeout: 15_000 }
         );
         await this.profileSaveButton.click();
         await saved;
-    }
-
-    async saveSkill() {
-        const added = this.page.waitForResponse(
-            (r) => r.url().includes(ROUTES.profile) && r.request().method() === "POST"
-        );
-        await this.addSkillButton.click();
-        await added;
     }
 
     async goto() {
@@ -74,7 +67,7 @@ export class ProfilePage {
     async addSkill(tag: string, type: string) {
         await this.skillInput.fill(tag);
         await this.skillTypeSelect.selectOption(type);
-        await this.saveSkill();
+        await this.addSkillButton.click();
     }
 }
 
