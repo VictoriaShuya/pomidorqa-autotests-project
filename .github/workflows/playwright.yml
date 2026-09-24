@@ -7,6 +7,9 @@ on:
   pull_request:
     # `main` здесь — целевая ветка PR, а не имя рабочей ветки.
     branches: [main]
+  # После мержа в main — повторный прогон на целевой ветке (урок 16: без push CI иллюзорен).
+  push:
+    branches: [main]
   # Оставляем кнопку ручного запуска во вкладке Actions.
   workflow_dispatch:
 
@@ -15,7 +18,7 @@ jobs:
   # Технический идентификатор единственной работы.
   test:
     # Читаемое имя работы в интерфейсе GitHub.
-    name: Lint and Playwright tests
+    name: Typecheck, lint and Playwright tests
     # Останавливаем зависший прогон через 30 минут.
     timeout-minutes: 30
     # Запускаем проверки на чистой Linux-машине GitHub.
@@ -23,7 +26,7 @@ jobs:
 
     # Шаги выполняются сверху вниз в одной и той же машине.
     steps:
-      # Сначала загружаем в runner код из текущего PR.
+      # Сначала загружаем в runner код из текущего PR / push.
       - name: Checkout repository
         # Официальный action GitHub для клонирования репозитория.
         uses: actions/checkout@v6
@@ -44,17 +47,21 @@ jobs:
         # `npm ci` ставит точные версии из lock-файла и проверяет его согласованность с package.json.
         run: npm ci
 
-      # Playwright-пакет и браузерный бинарник устанавливаются отдельно.
-      - name: Install Chromium and system dependencies
-        # Для учебного CI достаточно Chromium; `--with-deps` добавляет нужные библиотеки Linux.
-        run: npx playwright install --with-deps chromium
+      # Статика до браузера: typecheck ловит несуществующие методы Page Object за секунды.
+      - name: Typecheck
+        run: npm run typecheck
 
-      # Сначала запускаем быструю статическую проверку кода.
+      # ESLint с playwright-правилами — забытый await и нестабильные паттерны.
       - name: Lint tests
         # Используем тот же npm-скрипт, который разработчик запускает локально.
         run: npm run lint
 
-      # После линтера проверяем реальное поведение тестами.
+      # Playwright-пакет и браузерный бинарник — только после зелёной статики.
+      - name: Install Chromium and system dependencies
+        # Для учебного CI достаточно Chromium; `--with-deps` добавляет нужные библиотеки Linux.
+        run: npx playwright install --with-deps chromium
+
+      # После статики проверяем поведение тестами.
       - name: Run Playwright tests
         # Скрипт `test` из package.json запускает unit, API и E2E-проекты Playwright.
         run: npm test
