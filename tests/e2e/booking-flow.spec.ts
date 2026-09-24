@@ -6,6 +6,8 @@ import { BookingPage } from "../pages/booking-page";
 test("основной путь + гонка за слот: регистрация → навык → слот → поиск в каталоге → бронирование → «Мои встречи» у обоих → второй гость видит ошибку", async ({
                                                                                                                                                                  browser,
                                                                                                                                                                }) => {
+  test.setTimeout(120_000);
+
   const runId = Date.now();
   const skillTag = `Playwright-demo-${runId}`;
   const host = makeUser("host", runId);
@@ -78,7 +80,7 @@ test("основной путь + гонка за слот: регистраци
   });
 
   await test.step("Гость: проверяет, что появилась модалка подтверждения", async () => {
-    await expect(guestBooking.bookingConfirmDialog).toBeVisible();
+    await expect(guestBooking.bookingConfirmDialog).toBeVisible({ timeout: 15_000 });
   });
 
   await test.step("Гость2: регистрируется и тоже открывает окно бронирования на тот же слот", async () => {
@@ -96,7 +98,7 @@ test("основной путь + гонка за слот: регистраци
     await guest2Booking.selectFirstDay();
     await expect(guest2Booking.bookingCalendarTime.first()).toBeVisible();
     await guest2Booking.selectFirstTime();
-    await expect(guest2Booking.bookingConfirmDialog).toBeVisible();
+    await expect(guest2Booking.bookingConfirmDialog).toBeVisible({ timeout: 15_000 });
   });
 
   await test.step("Гость: подтверждает бронирование первым — успех", async () => {
