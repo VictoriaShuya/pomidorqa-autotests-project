@@ -1,14 +1,16 @@
 {
-  "name": "pomidorqa-course-tests",
+  "name": "pomidorqa-autotests-project",
   "version": "1.0.0",
   "private": true,
-  "description": "Официальный репозиторий марафона «Автоматизация на Playwright + TypeScript» — эталонные тесты PomidorQA (aiqa.su/pomidorqa) для чтения на уроках и площадка для домашних заданий студентов",
+  "description": "Автотесты Playwright + TypeScript на PomidorQA (aiqa.su/pomidorqa) — портфолио-проект с матрицей покрытия требований",
   "scripts": {
     "test": "playwright test",
     "test:unit": "playwright test --project=unit",
     "test:api": "playwright test --project=api",
     "test:e2e": "playwright test --project=e2e",
+    "typecheck": "tsc --noEmit",
     "lint": "eslint tests",
+    "gate": "npm run typecheck && npm run lint && npm test",
     "report": "playwright show-report"
   },
   "devDependencies": {
